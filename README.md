@@ -11,7 +11,9 @@ Nc file are very convenient, for example for processing with cdo software. This 
 ## Linux Installation
 
 >git clone https://github.com/JoLeBelge/rmiGriddedObs2nc
+
 >git submodule init
+
 >git submodule update
 
 ### dependencies
