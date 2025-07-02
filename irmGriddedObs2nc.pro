@@ -4,7 +4,10 @@ CONFIG -= app_bundle
 CONFIG -= qt
 QMAKE_CXXFLAGS = -Wno-c++11-narrowing
 
-LIBS += -lboost_system -lboost_filesystem -lboost_program_options -lboost_iostreams -lnetcdf_c++
+LIBS += -lboost_system -lboost_filesystem -lboost_program_options -lboost_iostreams -lnetcdf_c++ -lgdal
+
+INCLUDEPATH += /usr/include/gdal/
+DEPENDPATH += /usr/include/gdal/
 
 # pour date
 INCLUDEPATH += $$PWD/date/include/date/

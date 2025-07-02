@@ -32,9 +32,8 @@ cdo -b F64 merge -monsum -selname,RF,ETP /home/jo/Documents/Scolyte/Data/climat_
 
 then time serie for one pixel is extracted and written in a txt file with this command. Toto and tata argument value aren't used, there are only there because the arguments "inputGrid" and "inputGridDef" are mandatory (for tool number 1)
 
-./irm2nc --in /home/jo/Documents/Scolyte/Data/climat_Sco/IRM/nc/IRM-griddedObservation/MAR-monthly --inputGrid toto --inputGridDef tata --out=/home/jo/Documents/suiviTempMAB/data/capsis/irm2walsi.txt --outil 2 --X 60000 --Y 6300000
+./irm2nc --in /home/jo/Documents/Scolyte/Data/climat_Sco/IRM/nc/IRM-griddedObservation/MAR-monthly --inputGrid toto --inputGridDef tata --out=/home/jo/Documents/suiviTempMAB/data/capsis/irm2walsi.txt --outil 2 --X 50.418 --Y 5.037
 
-Be catious, the position of the forest site you provide with X and Y is in the coordinate system of the IRM grid (+proj=lcc +lat_2=50.569898649999999 +lat_1=50.569898649999999 +lon_0=4.553615160000000 +units=m +no_defs +a=6371229.0 +es=0.0) that can be added in QGis as a "custom CRS"
 
 ## Linux Installation
 
@@ -47,5 +46,7 @@ Be catious, the position of the forest site you provide with X and Y is in the c
 ### dependencies
 
 >sudo apt install libnetcdf-c++4 libnetcdf-cxx-legacy-dev cdo
+
+ajouter gdal-lib, qmake, gcc -> en fait un cmake serait plus approprié.
 
 compilation is then performed with qmake (from Qt creator e.g.)

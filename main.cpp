@@ -2,6 +2,8 @@
 #include "irm.h"
 #include "boost/program_options.hpp"
 #include "date/include/date/date.h"
+#include "ogrsf_frmts.h"
+#include "gdal_utils.h"
 
 using namespace date;
 using namespace std;
@@ -30,8 +32,8 @@ int main(int argc, char *argv[])
             ("inputGridDef", po::value< std::string>()->required(), "txt with definition of grid")
             ("out", po::value< std::string>()->required(), "file out")
             ("outil", po::value<int>(), "outil ; def outil number 1")
-            ("X", po::value< double>()->required(), "position X (custom irm coordinate system)")
-            ("Y", po::value< double>()->required(), "position Y (custom irm coordinate system)")
+            ("X", po::value< double>()->required(), "position longitude (WGS84)")
+            ("Y", po::value< double>()->required(), "position latitude (WGS84)")
             ;
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -68,18 +70,32 @@ int main(int argc, char *argv[])
        if (vm.count("X")) {X=vm["X"].as<double>();}
        if (vm.count("Y")) {Y=vm["Y"].as<double>();}
 
+       GDALAllRegister();
+
+       OGRSpatialReference source, target;
+
+       source.importFromEPSG(4326);
+       target.SetFromUserInput("+proj=lcc +lat_2=50.569898649999999 +lat_1=50.569898649999999 +lon_0=4.553615160000000 +units=m +no_defs +a=6371229.0 +es=0.0");
+
+       OGRPoint p;
+       p.setX(X);
+       p.setY(Y);
+       p.assignSpatialReference(&source);
+       p.transformTo(&target);
+
        // calcul de la position du pixel
        int U(33),V(33);
 
        // pas round, floor!
-       U=floor((X-oX)/res);
-       V=floor((-Y+oY)/res);
+       U=floor((p.getX()-oX)/res);
+       V=floor((-p.getY()+oY)/res);
        std::cout << "position of your forest site (X " << X << ", Y "<< Y << ") in pixel is " << U << ", " << V << std::endl;
        // vérification  (indexbox commence à 1, pas comme c++ qui commence à 0):
        // cdo -selindexbox,U+1,U+1,V+1,V+1 -selvar,TG IRM-monthly-1960.nc tmp.nc
        // ncdump tmp.nc
 
         std::ofstream ofs (pathOut, std::ofstream::out);
+        ofs << std::string("#position of your forest site (X ") + std::to_string(X) + ", Y "+ std::to_string(Y) + ") in pixel (IRM gridded obs) is " + std::to_string(U) + ", " + std::to_string(V) +"\n";
         ofs << "#Year\tMonth\tMean_T\tSum_P\tSum_pet\n";
        for (int y(1950);y<2025;y++){
            std::cout << "année " << std::to_string(y) << std::endl;
