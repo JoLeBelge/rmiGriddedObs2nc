@@ -27,12 +27,13 @@ irmData::irmData(std::string aFileIRM):mInPutFile(aFileIRM)
         if (header.find("RELATIVE HUMIDITY")!=std::string::npos | header.find("humidity_relative")!=std::string::npos){colRH=c;mVVars.push_back(std::make_pair("RH",std::make_pair("RH","RELATIVE HUMIDITY (%)")));}
         if (header.find("sun_duration")!=std::string::npos){colSD=c;mVVars.push_back(std::make_pair("SD",std::make_pair("SD","SUN DURATION (h)")));}
         if (header.find("ET" )!=std::string::npos | header.find("evapotrans_ref")!=std::string::npos){colETP=c;mVVars.push_back(std::make_pair("ETP",std::make_pair("ETP", "Evapotranspiration Potentielle ET0 ")));}
-        if (header.find("WIND SPEED")!=std::string::npos){colWS=c;mVVars.push_back(std::make_pair("WS",std::make_pair("WS","WIND SPEED (m/s)")));}
+        if (header.find("WIND SPEED")!=std::string::npos | header.find("WIND_SPEED")!=std::string::npos){colWS=c;mVVars.push_back(std::make_pair("WS",std::make_pair("WS","WIND SPEED (m/s)")));}
         if (header.find("GLOBAL RADIATION")!=std::string::npos| header.find("SHORT_WAVE_FROM_SKY")!=std::string::npos){colR=c; mVVars.push_back(std::make_pair("R",std::make_pair("QQ","SHORT WAVE FROM_SKY (kWh/m2/day)")));}
-        if (header.find("day")!=std::string::npos){colDate=c;}
-        if (header.find("pixel_id")!=std::string::npos){colPix_id=c;}
+       // if (header.find("day")!=std::string::npos | header.find("DATE")!=std::string::npos){colDate=c;} il y a day dans les unités de global radiation (kWh/m2/day)
+        if (header=="day" | header=="DAY" | header.find("DATE")!=std::string::npos){colDate=c;}
+        if (header.find("pixel_id")!=std::string::npos| header.find("PIXEL_ID")!=std::string::npos){colPix_id=c;}
     }
-    std::cout << "colPix_id" << colPix_id << " , colDate \n" << colDate << " Radiation colonne " << colR << " T mean colonne " << colTmean << " T max colonne " << colTmax << " T min colonne " << colTmin << "\n" << " Précipitation colonne " << colP << " ET0 colonne " << colETP << " , Wind speed colonne " << colWS << std::endl;
+    std::cout << "colPix_id" << colPix_id << " , colDate " << colDate << " Radiation colonne " << colR << "\n T mean colonne " << colTmean << " T max colonne " << colTmax << " T min colonne " << colTmin << "\n" << " Précipitation colonne " << colP << " ET0 colonne " << colETP << " , Wind speed colonne " << colWS << std::endl;
 
     std::string curDate("");
     for (int c(1); c<d.size();c++){
@@ -48,7 +49,14 @@ irmData::irmData(std::string aFileIRM):mInPutFile(aFileIRM)
             m=std::stoi(aDate.substr(0,2));
             y=1991;
             //std::cout << " day " << d << " , " << " month " << m << std::endl;
-        }else{
+        }else if (aDate.size()==8){
+            // une nouvelle date
+            // c'est pos, lent les arbuments, pas pos1, pos2!!
+            d=std::stoi(aDate.substr(6,2));
+            m=std::stoi(aDate.substr(4,2));
+            y=std::stoi(aDate.substr(0,4));
+
+        } else {
             // une nouvelle date
             d=std::stoi(aDate.substr(8,9));
             m=std::stoi(aDate.substr(5,6));
@@ -57,7 +65,7 @@ irmData::irmData(std::string aFileIRM):mInPutFile(aFileIRM)
 
         year_month_day ymd(year{y},month{m},day{d});
         if ( curDate!=aDate){
-            //std::cout << " création des données irm pour une date , y " << y << " m " << m << " d " << d << std::endl;
+            std::cout << " création des données irm pour une date , y " << y << " m " << m << " d " << d << std::endl;
             mVAllDates.emplace(std::make_pair(ymd,dataOneDate(ymd)));
             mVAllDates.at(ymd).addOnePix(line);
             curDate=aDate;
@@ -113,6 +121,8 @@ double dataOneDate::getValForPix(int pixel_id,std::string aVar){
             aRes=mVData.at(pixel_id).WS;
         } else if (aVar=="SD"){
             aRes=mVData.at(pixel_id).SunDuration;
+        } else if (aVar=="RH"){
+            aRes=mVData.at(pixel_id).RelHumid;
         }
     }
     return aRes;

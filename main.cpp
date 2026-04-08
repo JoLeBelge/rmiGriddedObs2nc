@@ -32,8 +32,8 @@ int main(int argc, char *argv[])
             ("inputGridDef", po::value< std::string>()->required(), "txt with definition of grid")
             ("out", po::value< std::string>()->required(), "file out")
             ("outil", po::value<int>(), "outil ; def outil number 1")
-            ("X", po::value< double>()->required(), "position longitude (WGS84)")
-            ("Y", po::value< double>()->required(), "position latitude (WGS84)")
+            ("X", po::value< double>(), "position longitude (WGS84)")
+            ("Y", po::value< double>(), "position latitude (WGS84)")
             ;
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
